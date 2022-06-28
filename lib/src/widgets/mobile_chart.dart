@@ -65,6 +65,9 @@ class _MobileChartState extends State<MobileChart> {
     minTiles = max(2, minTiles);
     double sizeRange = high - low;
     double minStepSize = sizeRange / minTiles;
+    if (minStepSize == 0) {
+      return 0;
+    }
     double base =
         pow(10, HelperFunctions.log10(minStepSize).floor()).toDouble();
 
@@ -108,8 +111,13 @@ class _MobileChartState extends State<MobileChart> {
             calcutePriceScale(chartHeight, candlesHighPrice, candlesLowPrice);
 
         // high and low calibrations revision
-        candlesHighPrice = (candlesHighPrice ~/ priceScale + 1) * priceScale;
-        candlesLowPrice = (candlesLowPrice ~/ priceScale) * priceScale;
+        if (priceScale == 0) {
+          candlesHighPrice = 2;
+          candlesLowPrice = 0;
+        } else {
+          candlesHighPrice = (candlesHighPrice ~/ priceScale + 1) * priceScale;
+          candlesLowPrice = (candlesLowPrice ~/ priceScale) * priceScale;
+        }
 
         // calcute highest volume
         double volumeHigh = 0;
