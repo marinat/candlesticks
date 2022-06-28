@@ -23,10 +23,13 @@ class Candlesticks extends StatefulWidget {
   /// list of buttons you what to add on top tool bar
   final List<ToolBarAction> actions;
 
+  final bool hideToolbar;
+
   Candlesticks({
     Key? key,
     required this.candles,
     this.onLoadMoreCandles,
+    this.hideToolbar = false,
     this.actions = const [],
   }) : super(key: key);
 
@@ -52,21 +55,22 @@ class _CandlesticksState extends State<Candlesticks> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ToolBar(
-          onZoomInPressed: () {
-            setState(() {
-              candleWidth += 2;
-              candleWidth = min(candleWidth, 16);
-            });
-          },
-          onZoomOutPressed: () {
-            setState(() {
-              candleWidth -= 2;
-              candleWidth = max(candleWidth, 4);
-            });
-          },
-          children: widget.actions,
-        ),
+        if (!widget.hideToolbar)
+          ToolBar(
+            onZoomInPressed: () {
+              setState(() {
+                candleWidth += 2;
+                candleWidth = min(candleWidth, 16);
+              });
+            },
+            onZoomOutPressed: () {
+              setState(() {
+                candleWidth -= 2;
+                candleWidth = max(candleWidth, 4);
+              });
+            },
+            children: widget.actions,
+          ),
         if (widget.candles.length == 0)
           Expanded(
             child: Center(
@@ -81,10 +85,7 @@ class _CandlesticksState extends State<Candlesticks> {
               tween: Tween(begin: 6.toDouble(), end: candleWidth),
               duration: Duration(milliseconds: 120),
               builder: (_, double width, __) {
-                if (kIsWeb ||
-                    Platform.isMacOS ||
-                    Platform.isWindows ||
-                    Platform.isLinux) {
+                if (kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
                   return DesktopChart(
                     onScaleUpdate: (double scale) {
                       scale = max(0.90, scale);
@@ -111,8 +112,7 @@ class _CandlesticksState extends State<Candlesticks> {
                       lastIndex = index;
                     },
                     onReachEnd: () {
-                      if (isCallingLoadMore == false &&
-                          widget.onLoadMoreCandles != null) {
+                      if (isCallingLoadMore == false && widget.onLoadMoreCandles != null) {
                         isCallingLoadMore = true;
                         widget.onLoadMoreCandles!().then((_) {
                           isCallingLoadMore = false;
@@ -150,8 +150,7 @@ class _CandlesticksState extends State<Candlesticks> {
                       lastIndex = index;
                     },
                     onReachEnd: () {
-                      if (isCallingLoadMore == false &&
-                          widget.onLoadMoreCandles != null) {
+                      if (isCallingLoadMore == false && widget.onLoadMoreCandles != null) {
                         isCallingLoadMore = true;
                         widget.onLoadMoreCandles!().then((_) {
                           isCallingLoadMore = false;
